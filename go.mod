@@ -6,6 +6,7 @@ require (
 	github.com/gookit/config/v2 v2.1.2
 	github.com/mkorman9/go-commons v1.0.19
 	github.com/rs/zerolog v1.26.1
+	github.com/satori/go.uuid v1.2.0
 )
 
 require (

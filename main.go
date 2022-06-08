@@ -6,8 +6,38 @@ import (
 	"github.com/mkorman9/go-commons/logging"
 	"github.com/mkorman9/go-commons/postgres"
 	"github.com/rs/zerolog/log"
+	uuid "github.com/satori/go.uuid"
+	"strings"
 	"time"
 )
+
+type Client struct {
+	ID          string
+	Gender      string
+	FirstName   string
+	LastName    string
+	Address     string
+	PhoneNumber string
+	Email       string
+	BirthDate   time.Time
+	CreditCards []string
+	IsDeleted   bool
+}
+
+func (c *Client) ToEntity() *ClientEntity {
+	return &ClientEntity{
+		ID:                c.ID,
+		Gender:            c.Gender,
+		FirstName:         c.FirstName,
+		LastName:          c.LastName,
+		Address:           c.Address,
+		PhoneNumber:       c.PhoneNumber,
+		Email:             c.Email,
+		BirthDate:         c.BirthDate,
+		CreditCardsString: strings.Join(c.CreditCards, ";"),
+		IsDeleted:         c.IsDeleted,
+	}
+}
 
 type ClientEntity struct {
 	ID                string    `gorm:"column:id; type:uuid; primaryKey"`
@@ -24,6 +54,21 @@ type ClientEntity struct {
 
 func (ClientEntity) TableName() string {
 	return "clients"
+}
+
+func (e *ClientEntity) ToClient() *Client {
+	return &Client{
+		ID:          e.ID,
+		Gender:      e.Gender,
+		FirstName:   e.FirstName,
+		LastName:    e.LastName,
+		Address:     e.Address,
+		PhoneNumber: e.PhoneNumber,
+		Email:       e.Email,
+		BirthDate:   e.BirthDate,
+		CreditCards: strings.Split(e.CreditCardsString, ";"),
+		IsDeleted:   e.IsDeleted,
+	}
 }
 
 func main() {
@@ -43,5 +88,27 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to auto-migrate schema")
 	}
 
-	log.Info().Msg("Done :)")
+	id := uuid.NewV4().String()
+	client := Client{
+		ID:          id,
+		Gender:      "M",
+		FirstName:   "AAA",
+		LastName:    "BBB",
+		Address:     "AAA 123/456",
+		PhoneNumber: "123-456-789",
+		Email:       "aaa@example.com",
+		BirthDate:   time.Now().UTC(),
+		CreditCards: []string{"1111 2222 3333 4444"},
+		IsDeleted:   false,
+	}
+	if result := db.Create(client.ToEntity()); result.Error != nil {
+		log.Fatal().Err(result.Error).Msg("Failed to insert record")
+	}
+
+	var entity ClientEntity
+	if result := db.First(&entity, "id = ?", id); result.Error != nil {
+		log.Fatal().Err(result.Error).Msg("Failed to select record")
+	}
+
+	log.Info().Msgf("%v", entity.ToClient())
 }
