@@ -1,0 +1,2 @@
+postgres:
+  dsn: host=localhost user=username password=password dbname=gogin port=5432 sslmode=disable TimeZone=UTC
