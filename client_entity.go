@@ -8,11 +8,11 @@ import (
 type ClientEntity struct {
 	ID          string         `gorm:"column:id; type:uuid; primaryKey"`
 	Gender      string         `gorm:"column:gender; type:char(1)"`
-	FirstName   string         `gorm:"column:first_name; type:varchar(255)"`
-	LastName    string         `gorm:"column:last_name; type:varchar(255)"`
-	Address     string         `gorm:"column:home_address; type:varchar(1024)"`
-	PhoneNumber string         `gorm:"column:phone_number; type:varchar(64)"`
-	Email       string         `gorm:"column:email; type:varchar(64)"`
+	FirstName   string         `gorm:"column:first_name; type:text"`
+	LastName    string         `gorm:"column:last_name; type:text"`
+	Address     string         `gorm:"column:home_address; type:text"`
+	PhoneNumber string         `gorm:"column:phone_number; type:text"`
+	Email       string         `gorm:"column:email; type:text"`
 	BirthDate   *time.Time     `gorm:"column:birth_date; type:timestamp"`
 	CreditCards pq.StringArray `gorm:"column:credit_cards; type:text[]"`
 	IsDeleted   bool           `gorm:"column:deleted; type:boolean"`
