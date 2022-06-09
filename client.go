@@ -8,9 +8,9 @@ import (
 type Gender = string
 
 const (
-	GenderUndefined = "-"
-	GenderMale      = "M"
-	GenderFemale    = "F"
+	GenderUndefined = Gender("-")
+	GenderMale      = Gender("M")
+	GenderFemale    = Gender("F")
 )
 
 type Client struct {
