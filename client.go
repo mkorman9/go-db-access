@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"time"
 )
 
@@ -28,15 +27,15 @@ type Client struct {
 
 func (c *Client) ToEntity() *ClientEntity {
 	return &ClientEntity{
-		ID:                c.ID,
-		Gender:            c.Gender,
-		FirstName:         c.FirstName,
-		LastName:          c.LastName,
-		Address:           c.Address,
-		PhoneNumber:       c.PhoneNumber,
-		Email:             c.Email,
-		BirthDate:         c.BirthDate,
-		CreditCardsString: strings.Join(c.CreditCards, ";"),
-		IsDeleted:         c.IsDeleted,
+		ID:          c.ID,
+		Gender:      c.Gender,
+		FirstName:   c.FirstName,
+		LastName:    c.LastName,
+		Address:     c.Address,
+		PhoneNumber: c.PhoneNumber,
+		Email:       c.Email,
+		BirthDate:   c.BirthDate,
+		CreditCards: c.CreditCards,
+		IsDeleted:   c.IsDeleted,
 	}
 }
