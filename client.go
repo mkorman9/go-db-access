@@ -6,16 +6,16 @@ import (
 )
 
 type Client struct {
-	ID          string    `json:"id"`
-	Gender      string    `json:"gender"`
-	FirstName   string    `json:"firstName"`
-	LastName    string    `json:"lastName"`
-	Address     string    `json:"address,omitempty"`
-	PhoneNumber string    `json:"phoneNumber,omitempty"`
-	Email       string    `json:"email,omitempty"`
-	BirthDate   time.Time `json:"birthDate,omitempty"`
-	CreditCards []string  `json:"creditCards"`
-	IsDeleted   bool      `json:"-"`
+	ID          string     `json:"id"`
+	Gender      string     `json:"gender"`
+	FirstName   string     `json:"firstName"`
+	LastName    string     `json:"lastName"`
+	Address     string     `json:"address,omitempty"`
+	PhoneNumber string     `json:"phoneNumber,omitempty"`
+	Email       string     `json:"email,omitempty"`
+	BirthDate   *time.Time `json:"birthDate,omitempty"`
+	CreditCards []string   `json:"creditCards"`
+	IsDeleted   bool       `json:"-"`
 }
 
 func (c *Client) ToEntity() *ClientEntity {

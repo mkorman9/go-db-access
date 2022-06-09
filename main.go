@@ -6,6 +6,7 @@ import (
 	"github.com/gookit/config/v2/yaml"
 	"github.com/mkorman9/go-commons/logging"
 	"github.com/mkorman9/go-commons/postgres"
+	"github.com/mkorman9/go-commons/utils"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 	"time"
@@ -37,7 +38,7 @@ func main() {
 		Address:     "AAA 123/456",
 		PhoneNumber: "123-456-789",
 		Email:       "aaa@example.com",
-		BirthDate:   time.Now().UTC(),
+		BirthDate:   utils.TimePtr(time.Now().UTC()),
 		CreditCards: []string{"1111 2222 3333 4444"},
 		IsDeleted:   false,
 	}
