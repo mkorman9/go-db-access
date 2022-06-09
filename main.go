@@ -32,7 +32,7 @@ func main() {
 	id := uuid.NewV4().String()
 	client := Client{
 		ID:          id,
-		Gender:      "M",
+		Gender:      GenderMale,
 		FirstName:   "AAA",
 		LastName:    "BBB",
 		Address:     "AAA 123/456",
