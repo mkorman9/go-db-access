@@ -5,9 +5,17 @@ import (
 	"time"
 )
 
+type Gender = string
+
+const (
+	GenderUndefined = "-"
+	GenderMale      = "M"
+	GenderFemale    = "F"
+)
+
 type Client struct {
 	ID          string     `json:"id"`
-	Gender      string     `json:"gender"`
+	Gender      Gender     `json:"gender"`
 	FirstName   string     `json:"firstName"`
 	LastName    string     `json:"lastName"`
 	Address     string     `json:"address,omitempty"`
