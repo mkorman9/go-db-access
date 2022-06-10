@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/gookit/config/v2 v2.1.2
 	github.com/lib/pq v1.10.2
-	github.com/mkorman9/go-commons v1.0.20
+	github.com/mkorman9/go-commons v1.0.22
 	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
 )
