@@ -18,6 +18,8 @@ type ClientEntity struct {
 	IsDeleted   bool           `gorm:"column:deleted; type:boolean"`
 }
 
+type ClientEntities []*ClientEntity
+
 func (ClientEntity) TableName() string {
 	return "clients"
 }
@@ -35,4 +37,13 @@ func (e *ClientEntity) ToClient() *Client {
 		CreditCards: e.CreditCards,
 		IsDeleted:   e.IsDeleted,
 	}
+}
+
+func (ds ClientEntities) ToClients() Clients {
+	clients := make([]*Client, len(ds))
+	for i, entity := range ds {
+		clients[i] = entity.ToClient()
+	}
+
+	return clients
 }

@@ -25,6 +25,8 @@ type Client struct {
 	IsDeleted   bool       `json:"-"`
 }
 
+type Clients []*Client
+
 func (c *Client) ToEntity() *ClientEntity {
 	return &ClientEntity{
 		ID:          c.ID,
@@ -38,4 +40,13 @@ func (c *Client) ToEntity() *ClientEntity {
 		CreditCards: c.CreditCards,
 		IsDeleted:   c.IsDeleted,
 	}
+}
+
+func (cs Clients) ToEntities() ClientEntities {
+	entities := make([]*ClientEntity, len(cs))
+	for i, entity := range cs {
+		entities[i] = entity.ToEntity()
+	}
+
+	return entities
 }

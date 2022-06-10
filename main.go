@@ -64,19 +64,14 @@ func main() {
 	s.Engine.LoadHTMLGlob("templates/*.html")
 
 	s.Engine.GET("/", func(c *gin.Context) {
-		var entities []*ClientEntity
+		var entities ClientEntities
 		if result := db.Find(&entities); result.Error != nil {
 			web.InternalError(c, err, "Error while retrieving clients")
 			return
 		}
 
-		clients := make([]*Client, len(entities))
-		for i, entity := range entities {
-			clients[i] = entity.ToClient()
-		}
-
 		c.HTML(200, "index.html", gin.H{
-			"clients": clients,
+			"clients": entities.ToClients(),
 		})
 	})
 
