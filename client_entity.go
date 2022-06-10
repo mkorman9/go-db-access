@@ -39,9 +39,9 @@ func (e *ClientEntity) ToClient() *Client {
 	}
 }
 
-func (ds ClientEntities) ToClients() Clients {
-	clients := make([]*Client, len(ds))
-	for i, entity := range ds {
+func (es ClientEntities) ToClients() Clients {
+	clients := make([]*Client, len(es))
+	for i, entity := range es {
 		clients[i] = entity.ToClient()
 	}
 
