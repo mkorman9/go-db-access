@@ -2,11 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/gookit/config/v2"
 	"github.com/gookit/config/v2/yaml"
 	"github.com/mkorman9/go-commons/logging"
 	"github.com/mkorman9/go-commons/postgres"
+	"github.com/mkorman9/go-commons/server"
 	"github.com/mkorman9/go-commons/utils"
+	"github.com/mkorman9/go-commons/web"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 	"time"
@@ -53,4 +56,29 @@ func main() {
 
 	b, _ := json.Marshal(entity.ToClient())
 	log.Info().Msg(string(b))
+
+	// server code
+	s := server.NewServer()
+	errorChannel := make(chan error)
+
+	s.Engine.LoadHTMLGlob("templates/*.html")
+
+	s.Engine.GET("/", func(ctx *gin.Context) {
+		var entities []*ClientEntity
+		if result := db.Find(&entities); result.Error != nil {
+			web.InternalError(ctx, err, "Error while retrieving clients")
+		}
+
+		clients := make([]*Client, len(entities))
+		for i, entity := range entities {
+			clients[i] = entity.ToClient()
+		}
+
+		ctx.HTML(200, "index.html", gin.H{
+			"clients": clients,
+		})
+	})
+
+	s.Start(errorChannel)
+	server.BlockThread(errorChannel)
 }

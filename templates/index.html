@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Clients</title>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="height: 100%;">
+    <table>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>E-Mail</th>
+        </tr>
+        {{ range $client := .clients }}
+        <tr>
+            <td>{{ $client.FirstName }}</td>
+            <td>{{ $client.LastName }}</td>
+            <td>{{ $client.Email }}</td>
+        </tr>
+        {{ end }}
+    </table>
+</div>
+</body>
+</html>
