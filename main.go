@@ -75,7 +75,7 @@ func createSession(sessionID string, account *Account, db *gorm.DB) {
 		AccountID: account.ID,
 		Token:     RandStringRunes(48),
 		Roles:     account.Roles,
-		ExpiresAt: utils.TimePtr(time.Now().UTC().Add(4 * time.Hour)),
+		ExpiresAt: utils.ToPtr(time.Now().UTC().Add(4 * time.Hour)),
 		Account:   account,
 	}
 	if result := db.Create(session.ToEntity()); result.Error != nil {
