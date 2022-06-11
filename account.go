@@ -43,9 +43,9 @@ func (a *Account) ToEntity() *AccountEntity {
 
 type AccountEntity struct {
 	ID          string             `gorm:"column:id; type:uuid; primaryKey"`
-	Username    string             `gorm:"column:username; type:text; unique"`
-	Roles       pq.StringArray     `gorm:"column:roles; type:text[]"`
-	IsDeleted   bool               `gorm:"column:deleted; type:boolean"`
+	Username    string             `gorm:"column:username; type:text; unique; not null"`
+	Roles       pq.StringArray     `gorm:"column:roles; type:text[]; not null"`
+	IsDeleted   bool               `gorm:"column:deleted; type:boolean; not null; default:false"`
 	BannedUntil *time.Time         `gorm:"column:banned_until; type:timestamp"`
 	Credentials *CredentialsEntity `gorm:"foreignKey:account_id; constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
@@ -56,8 +56,8 @@ func (AccountEntity) TableName() string {
 
 type CredentialsEntity struct {
 	AccountID      string `gorm:"column:account_id; type:uuid; primaryKey"`
-	Email          string `gorm:"column:email; type:text; unique"`
-	PasswordBcrypt string `gorm:"column:password_bcrypt; type:text"`
+	Email          string `gorm:"column:email; type:text; unique; not null"`
+	PasswordBcrypt string `gorm:"column:password_bcrypt; type:text; not null"`
 }
 
 func (CredentialsEntity) TableName() string {

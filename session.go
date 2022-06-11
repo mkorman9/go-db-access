@@ -33,9 +33,9 @@ func (s *Session) ToEntity() *SessionEntity {
 
 type SessionEntity struct {
 	ID        string         `gorm:"column:id; type:text; primaryKey"`
-	AccountID string         `gorm:"column:account_id; type:uuid"`
-	Token     string         `gorm:"column:token; type:text; unique"`
-	Roles     pq.StringArray `gorm:"column:roles; type:text[]"`
+	AccountID string         `gorm:"column:account_id; type:uuid; not null"`
+	Token     string         `gorm:"column:token; type:text; unique; not null"`
+	Roles     pq.StringArray `gorm:"column:roles; type:text[]; not null"`
 	ExpiresAt *time.Time     `gorm:"column:expires_at; type:timestamp"`
 
 	Account *AccountEntity `gorm:"foreignKey:AccountID"`
