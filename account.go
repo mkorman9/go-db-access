@@ -22,18 +22,23 @@ type Credentials struct {
 }
 
 func (a *Account) ToEntity() *AccountEntity {
-	return &AccountEntity{
+	ae := &AccountEntity{
 		ID:          a.ID,
 		Username:    a.Username,
 		Roles:       a.Roles,
 		IsDeleted:   a.IsDeleted,
 		BannedUntil: a.BannedUntil,
-		Credentials: &CredentialsEntity{
+	}
+
+	if a.Credentials != nil {
+		ae.Credentials = &CredentialsEntity{
 			AccountID:      a.ID,
 			Email:          a.Credentials.Email,
 			PasswordBcrypt: a.Credentials.PasswordBcrypt,
-		},
+		}
 	}
+
+	return ae
 }
 
 type AccountEntity struct {
@@ -60,15 +65,19 @@ func (CredentialsEntity) TableName() string {
 }
 
 func (ae *AccountEntity) ToAccount() *Account {
-	return &Account{
+	a := &Account{
 		ID:          ae.ID,
 		Username:    ae.Username,
 		Roles:       ae.Roles,
 		IsDeleted:   ae.IsDeleted,
 		BannedUntil: ae.BannedUntil,
-		Credentials: &Credentials{
+	}
+
+	if ae.Credentials != nil {
+		a.Credentials = &Credentials{
 			Email:          ae.Credentials.Email,
 			PasswordBcrypt: ae.Credentials.PasswordBcrypt,
-		},
+		}
 	}
+	return a
 }

@@ -16,14 +16,19 @@ type Session struct {
 }
 
 func (s *Session) ToEntity() *SessionEntity {
-	return &SessionEntity{
+	se := &SessionEntity{
 		ID:        s.ID,
 		AccountID: s.AccountID,
 		Token:     s.Token,
 		Roles:     s.Roles,
 		ExpiresAt: s.ExpiresAt,
-		Account:   s.Account.ToEntity(),
 	}
+
+	if s.Account != nil {
+		se.Account = s.Account.ToEntity()
+	}
+
+	return se
 }
 
 type SessionEntity struct {
@@ -41,12 +46,17 @@ func (SessionEntity) TableName() string {
 }
 
 func (se *SessionEntity) ToSession() *Session {
-	return &Session{
+	s := &Session{
 		ID:        se.ID,
 		AccountID: se.AccountID,
 		Token:     se.Token,
 		Roles:     se.Roles,
 		ExpiresAt: se.ExpiresAt,
-		Account:   se.Account.ToAccount(),
 	}
+
+	if se.Account != nil {
+		s.Account = se.Account.ToAccount()
+	}
+
+	return s
 }
