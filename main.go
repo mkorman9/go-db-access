@@ -27,9 +27,9 @@ func main() {
 	defer closeDB()
 
 	err = db.AutoMigrate(
-		&AccountEntity{},
-		&CredentialsEntity{},
-		&SessionEntity{},
+		&Account{},
+		&Credentials{},
+		&Session{},
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to auto-migrate schema")
@@ -54,16 +54,18 @@ func createAccount(accountID string, db *gorm.DB) *Account {
 			PasswordBcrypt: RandStringRunes(20),
 		},
 	}
-	if result := db.Create(account.ToEntity()); result.Error != nil {
+	if result := db.Create(&account); result.Error != nil {
 		log.Fatal().Err(result.Error).Msg("Failed to insert account")
 	}
 
-	var entity AccountEntity
-	if result := db.Preload("Credentials").First(&entity, "id = ?", accountID); result.Error != nil {
+	var accountFound Account
+	if result := db.
+		Preload("Credentials").
+		First(&accountFound, "id = ?", accountID); result.Error != nil {
 		log.Fatal().Err(result.Error).Msg("Failed to select record")
 	}
 
-	b, _ := json.Marshal(entity.ToAccount())
+	b, _ := json.Marshal(accountFound)
 	log.Info().Msg(string(b))
 
 	return &account
@@ -78,18 +80,18 @@ func createSession(sessionID string, account *Account, db *gorm.DB) {
 		ExpiresAt: utils.ToPtr(time.Now().UTC().Add(4 * time.Hour)),
 		Account:   account,
 	}
-	if result := db.Create(session.ToEntity()); result.Error != nil {
+	if result := db.Create(&session); result.Error != nil {
 		log.Fatal().Err(result.Error).Msg("Failed to insert session")
 	}
 
-	var entity SessionEntity
+	var sessionFound Session
 	if result := db.
 		Preload("Account").
 		Preload("Account.Credentials").
-		First(&entity, "id = ?", sessionID); result.Error != nil {
+		First(&sessionFound, "id = ?", sessionID); result.Error != nil {
 		log.Fatal().Err(result.Error).Msg("Failed to select record")
 	}
 
-	b, _ := json.Marshal(entity.ToSession())
+	b, _ := json.Marshal(sessionFound)
 	log.Info().Msg(string(b))
 }

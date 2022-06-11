@@ -6,78 +6,25 @@ import (
 )
 
 type Account struct {
-	ID          string         `json:"id"`
-	Username    string         `json:"username"`
-	Roles       pq.StringArray `json:"roles"`
-	IsDeleted   bool           `json:"isDeleted"`
-	BannedUntil *time.Time     `json:"bannedUntil,omitempty"`
+	ID          string         `json:"id" gorm:"column:id; type:uuid; primaryKey"`
+	Username    string         `json:"username" gorm:"column:username; type:text; unique; not null"`
+	Roles       pq.StringArray `json:"roles" gorm:"column:roles; type:text[]; not null"`
+	IsDeleted   bool           `json:"isDeleted" gorm:"column:deleted; type:boolean; not null; default:false"`
+	BannedUntil *time.Time     `json:"bannedUntil,omitempty" gorm:"column:banned_until; type:timestamp"`
 
-	Credentials *Credentials `json:"credentials"`
+	Credentials *Credentials `json:"credentials" gorm:"foreignKey:account_id; constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
 
-type Credentials struct {
-	AccountID      string `json:"-"`
-	Email          string `json:"email"`
-	PasswordBcrypt string `json:"passwordBcrypt"`
-}
-
-func (a *Account) ToEntity() *AccountEntity {
-	ae := &AccountEntity{
-		ID:          a.ID,
-		Username:    a.Username,
-		Roles:       a.Roles,
-		IsDeleted:   a.IsDeleted,
-		BannedUntil: a.BannedUntil,
-	}
-
-	if a.Credentials != nil {
-		ae.Credentials = &CredentialsEntity{
-			AccountID:      a.ID,
-			Email:          a.Credentials.Email,
-			PasswordBcrypt: a.Credentials.PasswordBcrypt,
-		}
-	}
-
-	return ae
-}
-
-type AccountEntity struct {
-	ID          string             `gorm:"column:id; type:uuid; primaryKey"`
-	Username    string             `gorm:"column:username; type:text; unique; not null"`
-	Roles       pq.StringArray     `gorm:"column:roles; type:text[]; not null"`
-	IsDeleted   bool               `gorm:"column:deleted; type:boolean; not null; default:false"`
-	BannedUntil *time.Time         `gorm:"column:banned_until; type:timestamp"`
-	Credentials *CredentialsEntity `gorm:"foreignKey:account_id; constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
-}
-
-func (AccountEntity) TableName() string {
+func (Account) TableName() string {
 	return "accounts"
 }
 
-type CredentialsEntity struct {
-	AccountID      string `gorm:"column:account_id; type:uuid; primaryKey"`
-	Email          string `gorm:"column:email; type:text; unique; not null"`
-	PasswordBcrypt string `gorm:"column:password_bcrypt; type:text; not null"`
+type Credentials struct {
+	AccountID      string `json:"-" gorm:"column:account_id; type:uuid; primaryKey"`
+	Email          string `json:"email" gorm:"column:email; type:text; unique; not null"`
+	PasswordBcrypt string `json:"passwordBcrypt" gorm:"column:password_bcrypt; type:text; not null"`
 }
 
-func (CredentialsEntity) TableName() string {
+func (Credentials) TableName() string {
 	return "credentials"
-}
-
-func (ae *AccountEntity) ToAccount() *Account {
-	a := &Account{
-		ID:          ae.ID,
-		Username:    ae.Username,
-		Roles:       ae.Roles,
-		IsDeleted:   ae.IsDeleted,
-		BannedUntil: ae.BannedUntil,
-	}
-
-	if ae.Credentials != nil {
-		a.Credentials = &Credentials{
-			Email:          ae.Credentials.Email,
-			PasswordBcrypt: ae.Credentials.PasswordBcrypt,
-		}
-	}
-	return a
 }
