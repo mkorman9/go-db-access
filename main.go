@@ -2,16 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"github.com/gookit/config/v2"
 	"github.com/gookit/config/v2/yaml"
 	"github.com/mkorman9/go-commons/logging"
 	"github.com/mkorman9/go-commons/postgres"
-	"github.com/mkorman9/go-commons/server"
 	"github.com/mkorman9/go-commons/utils"
-	"github.com/mkorman9/go-commons/web"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -27,54 +26,70 @@ func main() {
 	}
 	defer closeDB()
 
-	err = db.AutoMigrate(&ClientEntity{})
+	err = db.AutoMigrate(
+		&AccountEntity{},
+		&CredentialsEntity{},
+		&SessionEntity{},
+	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to auto-migrate schema")
 	}
 
-	id := uuid.NewV4().String()
-	client := Client{
-		ID:          id,
-		Gender:      GenderMale,
-		FirstName:   "AAA",
-		LastName:    "BBB",
-		Address:     "AAA 123/456",
-		PhoneNumber: "123-456-789",
-		Email:       "aaa@example.com",
-		BirthDate:   utils.TimePtr(time.Now().UTC()),
-		CreditCards: []string{"1111 2222 3333 4444"},
+	accountID := uuid.NewV4().String()
+	account := createAccount(accountID, db)
+
+	sessionID := uuid.NewV4().String()
+	createSession(sessionID, account, db)
+}
+
+func createAccount(accountID string, db *gorm.DB) *Account {
+	account := Account{
+		ID:          accountID,
+		Username:    RandStringRunes(10),
+		Roles:       []string{"PERMISSIONS_ADMIN"},
 		IsDeleted:   false,
+		BannedUntil: nil,
+		Credentials: &Credentials{
+			Email:          fmt.Sprintf("%s@example.com", RandStringRunes(8)),
+			PasswordBcrypt: RandStringRunes(20),
+		},
 	}
-	if result := db.Create(client.ToEntity()); result.Error != nil {
-		log.Fatal().Err(result.Error).Msg("Failed to insert record")
+	if result := db.Create(account.ToEntity()); result.Error != nil {
+		log.Fatal().Err(result.Error).Msg("Failed to insert account")
 	}
 
-	var entity ClientEntity
-	if result := db.First(&entity, "id = ?", id); result.Error != nil {
+	var entity AccountEntity
+	if result := db.Preload("Credentials").First(&entity, "id = ?", accountID); result.Error != nil {
 		log.Fatal().Err(result.Error).Msg("Failed to select record")
 	}
 
-	b, _ := json.Marshal(entity.ToClient())
+	b, _ := json.Marshal(entity.ToAccount())
 	log.Info().Msg(string(b))
 
-	// server code
-	s := server.NewServer()
-	errorChannel := make(chan error)
+	return &account
+}
 
-	s.Engine.LoadHTMLGlob("templates/*.html")
+func createSession(sessionID string, account *Account, db *gorm.DB) {
+	session := Session{
+		ID:        sessionID,
+		AccountID: account.ID,
+		Token:     RandStringRunes(48),
+		Roles:     account.Roles,
+		ExpiresAt: utils.TimePtr(time.Now().UTC().Add(4 * time.Hour)),
+		Account:   account,
+	}
+	if result := db.Create(session.ToEntity()); result.Error != nil {
+		log.Fatal().Err(result.Error).Msg("Failed to insert session")
+	}
 
-	s.Engine.GET("/", func(c *gin.Context) {
-		var entities ClientEntities
-		if result := db.Find(&entities); result.Error != nil {
-			web.InternalError(c, err, "Error while retrieving clients")
-			return
-		}
+	var entity SessionEntity
+	if result := db.
+		Preload("Account").
+		Preload("Account.Credentials").
+		First(&entity, "id = ?", sessionID); result.Error != nil {
+		log.Fatal().Err(result.Error).Msg("Failed to select record")
+	}
 
-		c.HTML(200, "index.html", gin.H{
-			"clients": entities.ToClients(),
-		})
-	})
-
-	s.Start(errorChannel)
-	server.BlockThread(errorChannel)
+	b, _ := json.Marshal(entity.ToSession())
+	log.Info().Msg(string(b))
 }
